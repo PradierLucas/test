@@ -20,6 +20,10 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
+        "@popperjs/core": "^2.11.8",
+        "bootstrap": "^5.3.3",
+        "lodash.debounce": "^4.0.8",
+        "react-data-table-component": "^7.6.2",
         "react-toastify": "^11.0.3"
     }
 }

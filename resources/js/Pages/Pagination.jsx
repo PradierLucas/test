@@ -1,25 +1,50 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
+import DataTable from 'react-data-table-component';
 
 const Pagination = ({ auth, lugares, filters }) => {
     // Validar datos iniciales
     const { data = [], current_page = 1, last_page = 1 } = lugares || {};
     const [query, setQuery] = useState(filters.query || '');
+    const [itemsPerPage, setItemsPerPage] = useState(per_page);
 
     // Función para cambiar de página
     const handlePageChange = (page) => {
-        router.get('/dashboard/search', { page, query });
+        router.get('/dashboard/search', { page, query, per_page: itemsPerPage });
     };
 
     // Función para buscar
     const handleSearch = (e) => {
         e.preventDefault();
-        router.get('/dashboard/search', { query });
+
+        if (query.length >= 3 ) {
+            router.get('/dashboard/search', { query, per_page: itemsPerPage });
+        }
     };
 
+    // Función para cambiar la cantidad de elementos por página
+    const handleItemsPerPageChange = (e) => {
+        setItemsPerPage(e.target.value);
+        router.get('/dashboard/search', { query, per_page: e.target.value });
+    };
 
-debugger
+    // Columnas para la tabla
+    const columns = [
+        {
+            name: 'Nombre',
+            selector: (row) => row.descripcion,
+            sortable: true,
+        },
+        {
+            name: 'Estado',
+            selector: (row) => (row.sn_estado ? 'Activo' : 'Inactivo'),
+            sortable: true,
+        },
+    ];
+
+    console.log(data);
+
     return (
         <AuthenticatedLayout user={auth.user} header={<h2 className="font-semibold text-xl">Lugares</h2>}>
             <Head title="Lugares" />
@@ -27,13 +52,13 @@ debugger
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white shadow-sm rounded-lg p-6">
-                        {/* Formulario de búsqueda */}
+
                         <form onSubmit={handleSearch} className="flex items-center gap-4 mb-4">
                             <input
                                 type="text"
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                placeholder="Buscar por descripción"
+                                placeholder="Buscar por nombre (mínimo 3 caracteres)"
                                 className="border p-2 rounded w-full"
                             />
                             <button
@@ -44,25 +69,29 @@ debugger
                             </button>
                         </form>
 
-                        {/* Tabla de resultados */}
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {data?.map((item) => (
-                                    <tr key={item.id}>
-                                        <td className="px-6 py-4">{item.descripcion}</td>
-                                        <td className="px-6 py-4">{item.sn_estado ? 'Activo' : 'Inactivo'}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <div className="flex items-center gap-4 mb-4">
+                            <label htmlFor="itemsPerPage">Resultados por página:</label>
+                            <select
+                                id="itemsPerPage"
+                                value={itemsPerPage}
+                                onChange={handleItemsPerPageChange}
+                                className="border  rounded"
+                            >
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
 
-                        {/* Paginación */}
+                        <DataTable
+                            columns={columns}
+                            data={data}
+                            highlightOnHover
+                            fixedHeader
+                            fixedHeaderScrollHeight="400px"
+                        />
+
                         <div className="flex justify-between items-center mt-4">
                             <button
                                 onClick={() => handlePageChange(current_page - 1)}

@@ -1,5 +1,7 @@
 import './bootstrap';
 import '../css/app.css';
+import 'bootstrap/dist/css/bootstrap.min.css'; // CSS de Bootstrap
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // JS de Bootstrap (incluye Popper.js)
 
 import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
